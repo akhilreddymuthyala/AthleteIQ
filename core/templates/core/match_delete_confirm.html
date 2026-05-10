@@ -1,0 +1,23 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div style="max-width:480px;margin:auto">
+  <div class="card">
+    <h2 style="color:#c0392b">🗑 Delete match</h2>
+    <div class="card" style="background:#fff8f8;border-color:#f5c6cb;margin:1rem 0">
+      <strong>{{ match.team_a }} vs {{ match.team_b }}</strong>
+      <p class="meta">{{ match.league.name }} · {{ match.get_status_display }}</p>
+      <p class="meta">{{ match.prediction_count }} predictions will also be deleted</p>
+    </div>
+    <p style="margin-bottom:1rem;font-size:0.95rem">
+      This will permanently delete the match and all predictions for it.
+    </p>
+    <form method="post">
+      {% csrf_token %}
+      <div class="flex">
+        <button type="submit" class="btn btn-danger">Yes, delete match</button>
+        <a href="{% url 'admin_dashboard' room.pk %}" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

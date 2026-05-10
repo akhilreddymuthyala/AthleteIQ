@@ -1,0 +1,30 @@
+{% extends 'core/base.html' %}
+{% block content %}
+
+<h2>My predictions</h2>
+
+{% for pred in predictions %}
+<div class="card">
+  <div class="flex">
+    <div>
+      <strong>{{ pred.match.team_a }} vs {{ pred.match.team_b }}</strong>
+      <span class="badge badge-{{ pred.match.status }}" style="margin-left:6px">{{ pred.match.get_status_display }}</span>
+      <p class="meta">
+        Room: {{ pred.room.name }} ·
+        Predicted: <strong>{{ pred.predicted_winner }}</strong> ·
+        {{ pred.created_at|date:"d M Y" }}
+      </p>
+      {% if pred.match.status == 'finished' %}
+        <p class="meta">Match winner: <strong>{{ pred.match.winner }}</strong></p>
+      {% endif %}
+    </div>
+    <div>
+      <span class="badge badge-{{ pred.result }}">{{ pred.get_result_display }}</span>
+    </div>
+  </div>
+</div>
+{% empty %}
+<p style="color:#888">You haven't made any predictions yet. <a href="{% url 'rooms_list' %}">Browse rooms</a></p>
+{% endfor %}
+
+{% endblock %}

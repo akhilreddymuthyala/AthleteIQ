@@ -1,0 +1,39 @@
+{% extends 'core/base.html' %}
+{% block content %}
+
+{% if live %}
+<h2>Live now</h2>
+{% for match in live %}
+<div class="card">
+  <span class="badge badge-live">Live</span>
+  <strong style="margin-left:8px">{{ match.team_a }} vs {{ match.team_b }}</strong>
+  <span style="color:#888;font-size:0.85rem;margin-left:8px">{{ match.league.name }}</span>
+</div>
+{% endfor %}
+{% endif %}
+
+<h2>Upcoming matches</h2>
+{% for match in upcoming %}
+<div class="card">
+  <span class="badge badge-upcoming">Upcoming</span>
+  <strong style="margin-left:8px">{{ match.team_a }} vs {{ match.team_b }}</strong>
+  <span style="color:#888;font-size:0.85rem;margin-left:8px">
+    {{ match.league.name }} · {{ match.scheduled_at|date:"d M Y, H:i" }}
+  </span>
+</div>
+{% empty %}
+<p style="color:#888">No upcoming matches yet. Admin can add them.</p>
+{% endfor %}
+
+<h2 style="margin-top:2rem">Recent results</h2>
+{% for match in finished %}
+<div class="card">
+  <span class="badge badge-finished">Finished</span>
+  <strong style="margin-left:8px">{{ match.team_a }} vs {{ match.team_b }}</strong>
+  <span style="color:#2e7d32;font-size:0.85rem;margin-left:8px">Winner: {{ match.winner }}</span>
+</div>
+{% empty %}
+<p style="color:#888">No results yet.</p>
+{% endfor %}
+
+{% endblock %}

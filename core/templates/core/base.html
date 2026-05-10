@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SportPredict</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; color: #111; }
+    nav { background: #1a1a2e; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+    nav a { color: #ccc; text-decoration: none; margin-left: 1rem; font-size: 0.9rem; }
+    nav a:hover { color: #fff; }
+    nav .brand { color: #fff; font-weight: 700; font-size: 1.1rem; text-decoration: none; margin-left: 0; }
+    .container { max-width: 960px; margin: 2rem auto; padding: 0 1rem; }
+    .card { background: #fff; border-radius: 8px; border: 1px solid #e5e5e5; padding: 1.25rem; margin-bottom: 1rem; }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 99px; font-size: 0.75rem; font-weight: 500; }
+    .badge-upcoming  { background: #e8f0fe; color: #1a56db; }
+    .badge-live      { background: #fce8e8; color: #c0392b; }
+    .badge-finished  { background: #e8f5e9; color: #2e7d32; }
+    .badge-cancelled { background: #f5f5f5; color: #888; }
+    .badge-public    { background: #e8f5e9; color: #2e7d32; }
+    .badge-private   { background: #fff3e0; color: #e65100; }
+    .badge-correct   { background: #e8f5e9; color: #2e7d32; }
+    .badge-incorrect { background: #fce8e8; color: #c0392b; }
+    .badge-pending   { background: #f5f5f5; color: #666; }
+    .badge-exact     { background: #e8f5e9; color: #2e7d32; }
+    .badge-close     { background: #fff3e0; color: #e65100; }
+    .messages { list-style: none; margin-bottom: 1rem; }
+    .messages li { padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 0.5rem; }
+    .messages li.success { background: #d4edda; color: #155724; }
+    .messages li.error   { background: #f8d7da; color: #721c24; }
+    .messages li.info    { background: #d1ecf1; color: #0c5460; }
+    .messages li.warning { background: #fff3cd; color: #856404; }
+    h2 { margin-bottom: 1rem; font-size: 1.15rem; color: #333; }
+    .btn { display: inline-block; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.9rem; cursor: pointer; text-decoration: none; border: none; }
+    .btn-primary { background: #1a1a2e; color: #fff; }
+    .btn-primary:hover { background: #2d2d52; }
+    .btn-outline { background: transparent; border: 1px solid #1a1a2e; color: #1a1a2e; }
+    .btn-outline:hover { background: #1a1a2e; color: #fff; }
+    .btn-danger  { background: #fce8e8; color: #c0392b; border: 1px solid #f5c6cb; }
+    .btn-danger:hover { background: #c0392b; color: #fff; }
+    .btn-sm { padding: 0.3rem 0.75rem; font-size: 0.8rem; }
+    label { display: block; font-size: 0.85rem; color: #555; margin-bottom: 0.25rem; }
+    input[type=text], input[type=email], input[type=password],
+    input[type=datetime-local], select, textarea {
+      width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #ddd;
+      border-radius: 6px; font-size: 0.9rem; margin-bottom: 0.75rem;
+    }
+    input:focus, select:focus, textarea:focus { outline: 2px solid #1a1a2e; border-color: transparent; }
+    .meta { font-size: 0.8rem; color: #888; margin-top: 0.25rem; }
+    .flex { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+    .spacer { flex: 1; }
+    .danger-zone { border: 1px solid #f5c6cb; border-radius: 8px; padding: 1.25rem; background: #fff8f8; margin-top: 2rem; }
+    .danger-zone h3 { color: #c0392b; margin-bottom: 0.75rem; }
+  </style>
+</head>
+<body>
+<nav>
+  <a href="{% url 'home' %}" class="brand">🏟 SportPredict</a>
+  <div>
+    {% if user.is_authenticated %}
+      <a href="{% url 'home' %}">Home</a>
+      <a href="{% url 'rooms_list' %}">Rooms</a>
+      <a href="{% url 'my_predictions' %}">My Predictions</a>
+      <a href="{% url 'room_join' %}">Join Room</a>
+      <span style="color:#555;font-size:0.85rem;margin-left:1rem">{{ user.username }}</span>
+      <a href="{% url 'logout' %}">Logout</a>
+    {% else %}
+      <a href="{% url 'home' %}">Home</a>
+      <a href="{% url 'login' %}">Login</a>
+      <a href="{% url 'register' %}">Register</a>
+    {% endif %}
+  </div>
+</nav>
+<div class="container">
+  {% if messages %}
+    <ul class="messages">
+      {% for m in messages %}
+        <li class="{{ m.tags }}">{{ m }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+  {% block content %}{% endblock %}
+</div>
+</body>
+</html>

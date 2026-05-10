@@ -1,0 +1,19 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div style="max-width:480px;margin:auto">
+  <div class="card">
+    <h2>Create a room</h2>
+    <form method="post" style="margin-top:1rem">
+      {% csrf_token %}
+      {% for field in form %}
+        <div>
+          <label>{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}<p style="color:red;font-size:0.8rem">{{ field.errors.0 }}</p>{% endif %}
+        </div>
+      {% endfor %}
+      <button type="submit" class="btn btn-primary" style="width:100%;margin-top:0.5rem">Create room</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

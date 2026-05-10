@@ -1,0 +1,88 @@
+{% extends 'core/base.html' %}
+{% block content %}
+
+<div class="flex" style="margin-bottom:1.5rem">
+  <div>
+    <h2 style="margin:0">🏆 Leaderboard</h2>
+    <p class="meta">{{ room.name }}</p>
+  </div>
+  <div class="spacer"></div>
+  <a href="{% url 'room_detail' room.pk %}" class="btn btn-outline btn-sm">← Back to room</a>
+</div>
+
+{% if ranked %}
+<div class="card" style="padding:0;overflow:hidden">
+  <table style="width:100%;border-collapse:collapse;font-size:0.9rem">
+    <thead>
+      <tr style="background:#1a1a2e;color:#fff;text-align:left">
+        <th style="padding:0.75rem 1rem">Rank</th>
+        <th style="padding:0.75rem 1rem">Player</th>
+        <th style="padding:0.75rem 1rem;text-align:center">Points</th>
+        <th style="padding:0.75rem 1rem;text-align:center">Streak 🔥</th>
+        <th style="padding:0.75rem 1rem;text-align:center">Best streak</th>
+        <th style="padding:0.75rem 1rem;text-align:center">Correct</th>
+        <th style="padding:0.75rem 1rem;text-align:center">Total</th>
+        <th style="padding:0.75rem 1rem;text-align:center">Accuracy</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in ranked %}
+      <tr style="
+        border-bottom: 1px solid #f0f0f0;
+        {% if row.user == request.user %}background:#f0f4ff;font-weight:600;{% endif %}
+        {% if row.rank == 1 %}background:#fffbea;{% endif %}
+      ">
+        <td style="padding:0.75rem 1rem">
+          {% if row.rank == 1 %}🥇
+          {% elif row.rank == 2 %}🥈
+          {% elif row.rank == 3 %}🥉
+          {% else %}{{ row.rank }}{% endif %}
+        </td>
+        <td style="padding:0.75rem 1rem">
+          {{ row.user.username }}
+          {% if row.user == request.user %}<span class="badge badge-upcoming" style="margin-left:4px">you</span>{% endif %}
+        </td>
+        <td style="padding:0.75rem 1rem;text-align:center;font-weight:700;color:#1a1a2e">{{ row.total_points }}</td>
+        <td style="padding:0.75rem 1rem;text-align:center;color:#e65100;font-weight:600">
+          {% if row.streak > 0 %}🔥 {{ row.streak }}{% else %}—{% endif %}
+        </td>
+        <td style="padding:0.75rem 1rem;text-align:center">{{ row.best_streak }}</td>
+        <td style="padding:0.75rem 1rem;text-align:center;color:#2e7d32">{{ row.correct_predictions }}</td>
+        <td style="padding:0.75rem 1rem;text-align:center">{{ row.total_predictions }}</td>
+        <td style="padding:0.75rem 1rem;text-align:center">{{ row.accuracy }}%</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% else %}
+<div class="card" style="text-align:center;padding:3rem;color:#888">
+  <p style="font-size:1.5rem;margin-bottom:0.5rem">🏆</p>
+  <p>No scores yet. Make predictions and wait for match results!</p>
+</div>
+{% endif %}
+
+<!-- Scoring rules card -->
+<div class="card" style="margin-top:1.5rem;background:#f9f9f9">
+  <h2 style="margin-bottom:0.75rem">Scoring rules</h2>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;text-align:center">
+    <div>
+      <p style="font-size:1.4rem;font-weight:700;color:#2e7d32">+10</p>
+      <p class="meta">Correct prediction (base)</p>
+    </div>
+    <div>
+      <p style="font-size:1.4rem;font-weight:700;color:#e65100">+2×streak</p>
+      <p class="meta">Streak bonus per level</p>
+    </div>
+    <div>
+      <p style="font-size:1.4rem;font-weight:700;color:#c0392b">0</p>
+      <p class="meta">Wrong prediction (streak resets)</p>
+    </div>
+  </div>
+  <p class="meta" style="margin-top:0.75rem;text-align:center">
+    Example: 3rd correct in a row = 10 + (2 × 2) = <strong>14 pts</strong>
+  </p>
+</div>
+
+{% endblock %}

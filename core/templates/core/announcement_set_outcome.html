@@ -1,0 +1,32 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div style="max-width:480px;margin:auto">
+  <div class="card">
+    <h2>✅ Set correct answer</h2>
+    <div class="card" style="background:#f9f9f9;margin-bottom:1rem">
+      <strong>{{ ann.message }}</strong>
+      <p class="meta">{{ ann.predictions.count }} predictions submitted</p>
+    </div>
+    <div class="card" style="background:#fff3e0;margin-bottom:1rem;font-size:0.85rem;color:#555">
+      Setting the answer will score all predictions and broadcast results via n8n.
+      This cannot be undone.
+    </div>
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+      <div style="margin-bottom:1rem">
+        <label>{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+          <p style="color:red;font-size:0.8rem">{{ field.errors.0 }}</p>
+        {% endif %}
+      </div>
+      {% endfor %}
+      <div class="flex">
+        <button type="submit" class="btn btn-primary">Save & score</button>
+        <a href="{% url 'announcement_list' room.pk %}" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

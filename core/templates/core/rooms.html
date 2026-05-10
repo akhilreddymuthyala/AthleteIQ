@@ -1,0 +1,47 @@
+{% extends 'core/base.html' %}
+{% block content %}
+
+<div class="flex" style="margin-bottom:1.5rem">
+  <h2 style="margin:0">Prediction rooms</h2>
+  <div class="spacer"></div>
+  <a href="{% url 'room_create' %}" class="btn btn-primary">+ Create room</a>
+  <a href="{% url 'room_join' %}" class="btn btn-outline">Join private room</a>
+</div>
+
+{% if my_rooms %}
+<h2>My rooms</h2>
+{% for room in my_rooms %}
+<div class="card">
+  <div class="flex">
+    <div>
+      <strong>{{ room.name }}</strong>
+      <span class="badge badge-{{ room.room_type }}" style="margin-left:6px">{{ room.get_room_type_display }}</span>
+      <p class="meta">Admin: {{ room.admin.username }} · {{ room.members.count }} members</p>
+      {% if room.description %}<p style="font-size:0.85rem;color:#555;margin-top:4px">{{ room.description }}</p>{% endif %}
+    </div>
+    <div class="spacer"></div>
+    <a href="{% url 'room_detail' room.pk %}" class="btn btn-primary btn-sm">Enter</a>
+  </div>
+</div>
+{% endfor %}
+{% endif %}
+
+<h2 style="margin-top:1.5rem">Public rooms</h2>
+{% for room in public_rooms %}
+<div class="card">
+  <div class="flex">
+    <div>
+      <strong>{{ room.name }}</strong>
+      <span class="badge badge-public" style="margin-left:6px">Public</span>
+      <p class="meta">Admin: {{ room.admin.username }} · {{ room.members.count }} members</p>
+      {% if room.description %}<p style="font-size:0.85rem;color:#555;margin-top:4px">{{ room.description }}</p>{% endif %}
+    </div>
+    <div class="spacer"></div>
+    <a href="{% url 'room_detail' room.pk %}" class="btn btn-outline btn-sm">Enter</a>
+  </div>
+</div>
+{% empty %}
+<p style="color:#888">No public rooms yet. Create one!</p>
+{% endfor %}
+
+{% endblock %}

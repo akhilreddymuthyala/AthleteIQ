@@ -1,0 +1,93 @@
+{% extends 'core/base.html' %}
+{% block content %}
+
+<div class="flex" style="margin-bottom:1.5rem">
+  <div>
+    <h2 style="margin:0">📢 Challenges</h2>
+    <p class="meta">{{ room.name }}</p>
+  </div>
+  <div class="spacer"></div>
+  {% if is_admin %}
+    <a href="{% url 'announcement_create' room.pk %}" class="btn btn-primary">+ New challenge</a>
+  {% endif %}
+  <a href="{% url 'room_detail' room.pk %}" class="btn btn-outline btn-sm">← Room</a>
+</div>
+
+{% for ann in announcements %}
+<div class="card" style="border-left:4px solid
+  {% if ann.scored %}#2e7d32{% elif ann.is_locked %}#888{% else %}#e65100{% endif %}">
+
+  <div class="flex" style="margin-bottom:0.5rem">
+    <div>
+      <span class="badge" style="background:#fff3e0;color:#e65100">{{ ann.get_type_display }}</span>
+      {% if ann.scored %}<span class="badge badge-finished" style="margin-left:4px">Scored</span>
+      {% elif ann.is_locked %}<span class="badge badge-cancelled" style="margin-left:4px">Locked</span>
+      {% else %}<span class="badge badge-live" style="margin-left:4px">Open</span>{% endif %}
+    </div>
+    <div class="spacer"></div>
+    <span class="meta">{{ ann.created_at|date:"d M, H:i" }}</span>
+  </div>
+
+  <strong style="font-size:1rem">{{ ann.message }}</strong>
+  <p class="meta">Closes: {{ ann.lock_at|date:"d M Y, H:i" }}</p>
+
+  {% if ann.correct_outcome %}
+    <p style="margin-top:0.4rem;color:#2e7d32;font-size:0.9rem">
+      ✅ Correct answer: <strong>{{ ann.correct_outcome }}</strong>
+    </p>
+  {% endif %}
+
+  <!-- User's own prediction -->
+  {% with dp=user_pred_map|default:None %}{% endwith %}
+  {% for ann_id, dp in user_pred_map.items %}
+    {% if ann_id == ann.pk %}
+    <div style="margin-top:0.6rem;padding:0.5rem 0.75rem;background:#f5f5f5;border-radius:6px;font-size:0.85rem">
+      Your guess: <strong>{{ dp.prediction_value }}</strong>
+      {% if dp.result != 'pending' %}
+        <span class="badge badge-{{ dp.result }}" style="margin-left:6px">{{ dp.get_result_display }}</span>
+        {% if dp.points_earned > 0 %}
+          <span style="margin-left:6px;color:#2e7d32;font-weight:600">+{{ dp.points_earned }} pts</span>
+        {% endif %}
+      {% endif %}
+    </div>
+    {% endif %}
+  {% endfor %}
+
+  <div class="flex" style="margin-top:0.75rem">
+    <span class="meta">{{ ann.predictions.count }} prediction{{ ann.predictions.count|pluralize }}</span>
+
+    <!-- Member action -->
+    {% if not ann.scored and not ann.is_locked and ann.pk not in user_pred_map %}
+      <a href="{% url 'dynamic_predict' ann.pk %}" class="btn btn-primary btn-sm">Submit guess</a>
+    {% endif %}
+
+    <!-- Admin actions -->
+    {% if is_admin %}
+      {% if not ann.is_locked and not ann.scored %}
+        <form method="post" action="{% url 'announcement_lock' room.pk ann.pk %}"
+              onsubmit="return confirm('Lock this challenge? No more predictions after this.')">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline btn-sm">🔒 Lock</button>
+        </form>
+      {% endif %}
+      {% if not ann.scored %}
+        <a href="{% url 'announcement_set_outcome' room.pk ann.pk %}"
+           class="btn btn-primary btn-sm">✅ Set answer</a>
+      {% endif %}
+    {% endif %}
+  </div>
+
+</div>
+{% empty %}
+<div class="card" style="text-align:center;padding:3rem;color:#888">
+  <p style="font-size:1.5rem">📢</p>
+  <p>No challenges yet.</p>
+  {% if is_admin %}
+    <a href="{% url 'announcement_create' room.pk %}" class="btn btn-primary" style="margin-top:1rem">
+      Post first challenge
+    </a>
+  {% endif %}
+</div>
+{% endfor %}
+
+{% endblock %}

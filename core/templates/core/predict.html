@@ -1,0 +1,33 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div style="max-width:440px;margin:auto">
+  <div class="card">
+    <h2>Make your prediction</h2>
+    <div class="card" style="background:#f9f9f9;margin-bottom:1rem">
+      <strong>{{ match.team_a }} vs {{ match.team_b }}</strong>
+      <p class="meta">{{ match.league.name }} · {{ match.scheduled_at|date:"d M Y, H:i" }}</p>
+      <p class="meta">Room: {{ room.name }}</p>
+    </div>
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+        <div style="margin-bottom:1rem">
+          <label style="font-weight:500">{{ field.label }}</label>
+          <div style="margin-top:0.5rem">
+            {% for choice in field %}
+              <label style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;font-size:1rem;cursor:pointer">
+                {{ choice.tag }} {{ choice.choice_label }}
+              </label>
+            {% endfor %}
+          </div>
+          {% if field.errors %}<p style="color:red;font-size:0.8rem">{{ field.errors.0 }}</p>{% endif %}
+        </div>
+      {% endfor %}
+      <button type="submit" class="btn btn-primary" style="width:100%">Submit prediction</button>
+    </form>
+    <p style="margin-top:0.75rem;text-align:center">
+      <a href="{% url 'room_detail' room.pk %}" style="font-size:0.85rem;color:#666">← Back to room</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

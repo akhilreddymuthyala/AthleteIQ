@@ -1,0 +1,37 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div style="max-width:440px;margin:auto">
+  <div class="card">
+    <h2>Set match result</h2>
+    <div class="card" style="background:#f9f9f9;margin-bottom:1.25rem">
+      <strong>{{ match.team_a }} vs {{ match.team_b }}</strong>
+      <p class="meta">{{ match.league.name }} · {{ match.scheduled_at|date:"d M Y, H:i" }}</p>
+      <p class="meta">{{ match.prediction_count }} predictions submitted</p>
+    </div>
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+        <div style="margin-bottom:1.25rem">
+          <label style="font-weight:500;display:block;margin-bottom:0.5rem">{{ field.label }}</label>
+          {% for choice in field %}
+            <label style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;font-size:1rem;cursor:pointer">
+              {{ choice.tag }} {{ choice.choice_label }}
+            </label>
+          {% endfor %}
+          {% if field.errors %}
+            <p style="color:red;font-size:0.8rem">{{ field.errors.0 }}</p>
+          {% endif %}
+        </div>
+      {% endfor %}
+      <div class="card" style="background:#fff3e0;margin-bottom:1rem;font-size:0.85rem;color:#555">
+        ⚠️ Saving this will mark the match as <strong>Finished</strong> and automatically score all predictions.
+        This cannot be undone.
+      </div>
+      <div class="flex">
+        <button type="submit" class="btn btn-primary">Save result & score</button>
+        <a href="{% url 'admin_dashboard' room.pk %}" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
