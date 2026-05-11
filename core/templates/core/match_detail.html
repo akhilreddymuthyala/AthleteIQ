@@ -3,68 +3,72 @@
 
 <div class="flex" style="margin-bottom:1.5rem">
   <div>
-    <h2 style="margin:0">{{ match.team_a }} vs {{ match.team_b }}</h2>
-    <p class="meta">{{ match.league.name }} · {{ match.scheduled_at|date:"d M Y, H:i" }}</p>
+    <p class="section-label">{{ match.league.name }}</p>
+    <h2 style="font-size:1.8rem;margin:0">
+      {{ match.team_a }} <span style="color:var(--muted)">vs</span> {{ match.team_b }}
+    </h2>
+    <p class="meta">{{ match.scheduled_at|date:"d M Y, H:i" }}</p>
   </div>
   <div class="spacer"></div>
-  <span class="badge badge-{{ match.status }}" style="font-size:0.9rem">{{ match.get_status_display }}</span>
+  <span class="badge badge-{{ match.status }}" style="font-size:0.85rem">{{ match.get_status_display }}</span>
   {% if is_admin %}
-    <a href="{% url 'admin_dashboard' room.pk %}" class="btn btn-outline btn-sm">⚙️ Dashboard</a>
+    <a href="{% url 'admin_dashboard' room.pk %}" class="btn btn-outline btn-sm">⚙ Dashboard</a>
   {% else %}
     <a href="{% url 'room_detail' room.pk %}" class="btn btn-outline btn-sm">← Room</a>
   {% endif %}
 </div>
 
 {% if match.status == 'finished' %}
-<div class="card" style="background:#e8f5e9;border-color:#a5d6a7;margin-bottom:1.5rem;text-align:center">
-  <p style="font-size:0.85rem;color:#555;margin-bottom:0.25rem">Winner</p>
-  <p style="font-size:1.8rem;font-weight:700;color:#2e7d32">🏆 {{ match.winner }}</p>
+<div style="text-align:center;padding:1.5rem;background:rgba(0,230,118,0.06);border:1px solid rgba(0,230,118,0.2);border-radius:var(--radius);margin-bottom:1.5rem">
+  <p style="font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Winner</p>
+  <p style="font-family:'Barlow Condensed',sans-serif;font-size:2.5rem;font-weight:800;color:var(--green)">
+    🏆 {{ match.winner }}
+  </p>
 </div>
 {% endif %}
 
-<!-- User's own prediction -->
+<!-- User's prediction -->
 {% if user_pred %}
-<div class="card" style="margin-bottom:1.5rem;border-left:4px solid
-  {% if user_pred.result == 'correct' %}#2e7d32
-  {% elif user_pred.result == 'incorrect' %}#c0392b
-  {% else %}#1a56db{% endif %}">
-  <p class="meta">Your prediction</p>
+<div class="card {% if user_pred.result == 'correct' %}border-green{% elif user_pred.result == 'incorrect' %}border-red{% endif %}" style="margin-bottom:1.5rem">
+  <p class="section-label">Your prediction</p>
   <div class="flex">
-    <strong style="font-size:1.1rem">{{ user_pred.predicted_winner }}</strong>
-    <span class="badge badge-{{ user_pred.result }}" style="margin-left:0.5rem">
-      {{ user_pred.get_result_display }}
-    </span>
+    <strong style="font-family:'Barlow Condensed',sans-serif;font-size:1.2rem">{{ user_pred.predicted_winner }}</strong>
+    <span class="badge badge-{{ user_pred.result }}">{{ user_pred.get_result_display }}</span>
   </div>
 </div>
 {% elif match.status == 'upcoming' %}
-<div class="card" style="margin-bottom:1.5rem;text-align:center">
-  <p style="color:#888;margin-bottom:0.75rem">You haven't predicted this match yet.</p>
-  <a href="{% url 'predict' room.pk match.pk %}" class="btn btn-primary">Make prediction</a>
+<div class="card" style="text-align:center;padding:1.5rem;margin-bottom:1.5rem">
+  <p style="color:var(--muted);margin-bottom:0.75rem">You haven't predicted this match yet.</p>
+  <a href="{% url 'predict' room.pk match.pk %}" class="btn btn-primary">Make prediction →</a>
 </div>
 {% endif %}
 
-<!-- All predictions summary -->
-<h2>All predictions ({{ predictions.count }})</h2>
+<!-- All predictions -->
+<p class="section-label">All predictions ({{ predictions.count }})</p>
 {% if predictions %}
-<div class="card" style="padding:0;overflow:hidden">
-  <table style="width:100%;border-collapse:collapse;font-size:0.9rem">
+<div class="card card-solid" style="padding:0;overflow:hidden">
+  <table class="iq-table">
     <thead>
-      <tr style="background:#f5f5f5;text-align:left">
-        <th style="padding:0.6rem 1rem">Member</th>
-        <th style="padding:0.6rem 1rem">Predicted</th>
-        <th style="padding:0.6rem 1rem;text-align:center">Result</th>
+      <tr>
+        <th>Member</th>
+        <th>Picked</th>
+        <th style="text-align:center">Result</th>
       </tr>
     </thead>
     <tbody>
       {% for pred in predictions %}
-      <tr style="border-bottom:1px solid #f0f0f0;
-        {% if pred.user == request.user %}background:#f0f4ff;font-weight:600{% endif %}">
-        <td style="padding:0.6rem 1rem">
-          {{ pred.user.username }}
-          {% if pred.user == request.user %}<span class="badge badge-upcoming" style="margin-left:4px">you</span>{% endif %}
+      <tr style="{% if pred.user == request.user %}background:rgba(0,230,118,0.03){% endif %}">
+        <td>
+          <div class="flex" style="gap:0.5rem">
+            <span style="width:26px;height:26px;border-radius:50%;background:var(--navy3);display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;color:var(--green)">
+              {{ pred.user.username|slice:":1"|upper }}
+            </span>
+            {{ pred.user.username }}
+            {% if pred.user == request.user %}<span class="badge badge-upcoming">you</span>{% endif %}
+          </div>
         </td>
-        <td style="padding:0.6rem 1rem">{{ pred.predicted_winner }}</td>
-        <td style="padding:0.6rem 1rem;text-align:center">
+        <td style="font-weight:600">{{ pred.predicted_winner }}</td>
+        <td style="text-align:center">
           <span class="badge badge-{{ pred.result }}">{{ pred.get_result_display }}</span>
         </td>
       </tr>
@@ -73,7 +77,7 @@
   </table>
 </div>
 {% else %}
-<p style="color:#888">No predictions submitted yet.</p>
+<p style="color:var(--muted)">No predictions yet.</p>
 {% endif %}
 
 {% endblock %}

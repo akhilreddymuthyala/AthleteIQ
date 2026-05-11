@@ -1,19 +1,22 @@
 {% extends 'core/base.html' %}
 {% block content %}
-<div style="max-width:420px;margin:auto">
-  <div class="card">
-    <h2>Join a private room</h2>
-    <p class="meta" style="margin-bottom:1rem">Ask the room admin for the 12-character invite code.</p>
+<div style="max-width:420px;margin:3rem auto">
+  <p class="section-label">Private rooms</p>
+  <h2 style="margin-bottom:0.5rem">Join with invite code</h2>
+  <p class="meta" style="margin-bottom:1.5rem">Ask the room admin for the 12-character code.</p>
+  <div class="card card-solid">
     <form method="post">
       {% csrf_token %}
       {% for field in form %}
-        <div>
-          <label>{{ field.label }}</label>
-          {{ field }}
-          {% if field.errors %}<p style="color:red;font-size:0.8rem">{{ field.errors.0 }}</p>{% endif %}
-        </div>
+      <div>
+        <label>{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+          <p style="color:var(--red);font-size:0.8rem;margin-top:-0.75rem;margin-bottom:0.75rem">{{ field.errors.0 }}</p>
+        {% endif %}
+      </div>
       {% endfor %}
-      <button type="submit" class="btn btn-primary" style="width:100%;margin-top:0.5rem">Join</button>
+      <button type="submit" class="btn btn-primary btn-block">Join room</button>
     </form>
   </div>
 </div>

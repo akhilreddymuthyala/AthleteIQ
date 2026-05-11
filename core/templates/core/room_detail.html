@@ -1,118 +1,123 @@
 {% extends 'core/base.html' %}
 {% block content %}
 
-<div class="flex" style="margin-bottom:1rem">
+<!-- Header -->
+<div class="flex" style="margin-bottom:1.5rem;flex-wrap:wrap;gap:0.5rem">
   <div>
-    <h2 style="margin:0">{{ room.name }}</h2>
-    <span class="badge badge-{{ room.room_type }}">{{ room.get_room_type_display }}</span>
+    <p class="section-label">Room</p>
+    <div class="flex" style="gap:0.6rem;align-items:center">
+      <h2 style="margin:0;font-size:1.8rem">{{ room.name }}</h2>
+      <span class="badge badge-{{ room.room_type }}">{{ room.get_room_type_display }}</span>
+    </div>
     {% if room.room_type == 'private' %}
-      <span class="meta" style="margin-left:8px">
-        Invite: <strong>{{ room.invite_code }}</strong>
-      </span>
+      <p class="meta" style="margin-top:4px">
+        Invite code: <code style="color:var(--amber);background:rgba(255,171,0,0.1);padding:2px 8px;border-radius:4px">{{ room.invite_code }}</code>
+      </p>
     {% endif %}
   </div>
   <div class="spacer"></div>
-  {% if is_admin %}
-    <a href="{% url 'admin_dashboard' room.pk %}" class="btn btn-primary btn-sm">⚙️ Dashboard</a>
-    <a href="{% url 'announcement_create' room.pk %}" class="btn btn-primary btn-sm">📢 + Challenge</a>
-  {% endif %}
-  <a href="{% url 'announcement_list' room.pk %}" class="btn btn-outline btn-sm">📢 Challenges</a>
-  <a href="{% url 'leaderboard' room.pk %}" class="btn btn-outline btn-sm">🏆 Leaderboard</a>
-  <a href="{% url 'rooms_list' %}" class="btn btn-outline btn-sm">← Rooms</a>
+  <div class="flex" style="gap:0.5rem">
+    {% if is_admin %}
+      <a href="{% url 'admin_dashboard' room.pk %}" class="btn btn-amber btn-sm">⚙ Dashboard</a>
+      <a href="{% url 'announcement_create' room.pk %}" class="btn btn-primary btn-sm">📢 + Challenge</a>
+    {% endif %}
+    <a href="{% url 'announcement_list' room.pk %}" class="btn btn-outline btn-sm">📢 Challenges</a>
+    <a href="{% url 'leaderboard' room.pk %}" class="btn btn-outline btn-sm">🏆 Board</a>
+    <a href="{% url 'rooms_list' %}" class="btn btn-outline btn-sm">← Rooms</a>
+  </div>
 </div>
 
 <!-- Score card -->
 {% if user_points %}
-<div class="card" style="background:#f0f4ff;border-color:#c7d7fe;margin-bottom:1.5rem">
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-bottom:1.5rem">
+  <div class="stat-pill" style="border-color:rgba(0,230,118,0.2)">
+    <div class="num" style="color:var(--green)">{{ user_points.total_points }}</div>
+    <div class="lbl">Points</div>
+  </div>
+  <div class="stat-pill">
+    <div class="num" style="color:var(--amber)">🔥 {{ user_points.streak }}</div>
+    <div class="lbl">Streak</div>
+  </div>
+  <div class="stat-pill">
+    <div class="num" style="color:var(--green)">{{ user_points.accuracy }}%</div>
+    <div class="lbl">Accuracy</div>
+  </div>
+  <div class="stat-pill">
+    <div class="num">{{ user_points.correct_predictions }}/{{ user_points.total_predictions }}</div>
+    <div class="lbl">Correct</div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Announcements strip -->
+{% if announcements %}
+<p class="section-label">📢 Active challenges</p>
+{% for ann in announcements|slice:":3" %}
+<div class="card {% if ann.scored %}border-green{% elif ann.is_locked %}border-muted{% else %}border-amber{% endif %}" style="margin-bottom:0.6rem">
   <div class="flex">
     <div>
-      <span class="meta">Your score</span>
-      <p style="font-size:1.5rem;font-weight:700;color:#1a1a2e">{{ user_points.total_points }} pts</p>
-    </div>
-    <div style="text-align:center">
-      <span class="meta">Streak</span>
-      <p style="font-size:1.4rem;font-weight:700;color:#e65100">🔥 {{ user_points.streak }}</p>
-    </div>
-    <div style="text-align:center">
-      <span class="meta">Accuracy</span>
-      <p style="font-size:1.4rem;font-weight:700;color:#2e7d32">{{ user_points.accuracy }}%</p>
-    </div>
-    <div style="text-align:center">
-      <span class="meta">Correct</span>
-      <p style="font-size:1.4rem;font-weight:700">
-        {{ user_points.correct_predictions }}/{{ user_points.total_predictions }}
-      </p>
-    </div>
-  </div>
-</div>
-{% endif %}
-
-<!-- Announcements -->
-{% if announcements %}
-<div style="margin-bottom:1.5rem">
-  <div class="flex" style="margin-bottom:0.5rem">
-    <h2 style="margin:0">📢 Challenges</h2>
-    <div class="spacer"></div>
-    <a href="{% url 'announcement_list' room.pk %}" class="btn btn-outline btn-sm">View all</a>
-  </div>
-  {% for ann in announcements|slice:":3" %}
-  <div class="card" style="border-left:4px solid
-    {% if ann.scored %}#2e7d32{% elif ann.is_locked %}#888{% else %}#e65100{% endif %}">
-    <div class="flex">
-      <div>
-        <span class="badge" style="background:#fff3e0;color:#e65100">{{ ann.get_type_display }}</span>
-        {% if ann.scored %}<span class="badge badge-finished" style="margin-left:4px">Scored</span>
-        {% elif ann.is_locked %}<span class="badge badge-cancelled" style="margin-left:4px">Locked</span>
-        {% else %}<span class="badge badge-live" style="margin-left:4px">Open</span>{% endif %}
-        <strong style="display:block;margin-top:0.25rem">{{ ann.message }}</strong>
-        <p class="meta">Closes: {{ ann.lock_at|date:"d M, H:i" }}</p>
+      <div class="flex" style="gap:0.4rem;margin-bottom:0.25rem">
+        <span class="badge" style="background:rgba(255,171,0,0.12);color:var(--amber)">{{ ann.get_type_display }}</span>
+        {% if ann.scored %}<span class="badge badge-finished">Scored</span>
+        {% elif ann.is_locked %}<span class="badge badge-cancelled">Locked</span>
+        {% else %}<span class="badge badge-live">Open</span>{% endif %}
       </div>
-      <div class="spacer"></div>
-      {% if ann.pk in user_dyn_predictions %}
-        <span class="badge badge-pending">Submitted ✓</span>
-      {% elif ann.scored or ann.is_locked %}
-        <span class="badge badge-cancelled">Closed</span>
-      {% else %}
-        <a href="{% url 'dynamic_predict' ann.pk %}" class="btn btn-primary btn-sm">Submit</a>
-      {% endif %}
+      <strong>{{ ann.message }}</strong>
+      <p class="meta">Closes {{ ann.lock_at|date:"d M, H:i" }}</p>
     </div>
+    <div class="spacer"></div>
+    {% if ann.pk in user_dyn_predictions %}
+      <span class="badge badge-pending">✓ Submitted</span>
+    {% elif ann.scored or ann.is_locked %}
+      <span class="badge badge-cancelled">Closed</span>
+    {% else %}
+      <a href="{% url 'dynamic_predict' ann.pk %}" class="btn btn-primary btn-sm">Submit →</a>
+    {% endif %}
   </div>
-  {% endfor %}
 </div>
+{% endfor %}
+{% if announcements.count > 3 %}
+  <a href="{% url 'announcement_list' room.pk %}" class="btn btn-outline btn-sm" style="margin-bottom:1rem">View all challenges →</a>
+{% endif %}
 {% endif %}
 
-<!-- Main grid: matches + chat + members -->
-<div style="display:grid;grid-template-columns:1fr 340px;gap:1.5rem;align-items:start">
+<!-- Main 2-col grid -->
+<div style="display:grid;grid-template-columns:1fr 320px;gap:1.5rem;align-items:start;margin-top:1.5rem">
 
-  <!-- Left: Matches -->
+  <!-- LEFT: Matches -->
   <div>
     {% if live_matches %}
-    <h2>🔴 Live now</h2>
+    <p class="section-label">🔴 Live now</p>
     {% for match in live_matches %}
-    <div class="card" style="border-left:4px solid #c0392b">
+    <div class="card border-red" style="margin-bottom:0.6rem">
       <div class="flex">
         <div>
-          <strong>{{ match.team_a }} vs {{ match.team_b }}</strong>
+          <strong style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem">
+            {{ match.team_a }} <span style="color:var(--muted)">vs</span> {{ match.team_b }}
+          </strong>
           <p class="meta">{{ match.league.name }}</p>
         </div>
         <div class="spacer"></div>
+        <span class="badge badge-live">● Live</span>
         <a href="{% url 'match_detail' room.pk match.pk %}" class="btn btn-outline btn-sm">View</a>
       </div>
     </div>
     {% endfor %}
     {% endif %}
 
-    <h2>Upcoming matches</h2>
+    <p class="section-label">Upcoming matches</p>
     {% for match in open_matches %}
-    <div class="card">
+    <div class="card" style="margin-bottom:0.6rem">
       <div class="flex">
         <div>
-          <strong>{{ match.team_a }} vs {{ match.team_b }}</strong>
+          <strong style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem">
+            {{ match.team_a }} <span style="color:var(--muted)">vs</span> {{ match.team_b }}
+          </strong>
           <p class="meta">{{ match.league.name }} · {{ match.scheduled_at|date:"d M, H:i" }}</p>
         </div>
         <div class="spacer"></div>
         {% if match.pk in user_predictions %}
-          <span class="badge badge-pending">✓ Predicted</span>
+          <span class="badge badge-finished">✓ Predicted</span>
         {% else %}
           <a href="{% url 'predict' room.pk match.pk %}" class="btn btn-primary btn-sm">Predict</a>
         {% endif %}
@@ -120,20 +125,23 @@
       </div>
     </div>
     {% empty %}
-    <p style="color:#888">
-      No upcoming matches.
-      {% if is_admin %}<a href="{% url 'match_add' room.pk %}">Add one →</a>{% endif %}
-    </p>
+    <div class="card" style="text-align:center;padding:2rem;color:var(--muted)">
+      <p>No upcoming matches.
+        {% if is_admin %}<a href="{% url 'match_add' room.pk %}" style="color:var(--green)">Add one →</a>{% endif %}
+      </p>
+    </div>
     {% endfor %}
 
     {% if finished_matches %}
-    <h2 style="margin-top:1.5rem">Recent results</h2>
+    <p class="section-label" style="margin-top:1.5rem">Recent results</p>
     {% for match in finished_matches %}
-    <div class="card">
+    <div class="card border-green" style="margin-bottom:0.6rem">
       <div class="flex">
         <div>
-          <strong>{{ match.team_a }} vs {{ match.team_b }}</strong>
-          <p class="meta">Winner: <strong style="color:#2e7d32">{{ match.winner }}</strong></p>
+          <strong style="font-family:'Barlow Condensed',sans-serif;font-size:1.05rem">
+            {{ match.team_a }} vs {{ match.team_b }}
+          </strong>
+          <p class="meta">Winner: <span style="color:var(--green);font-weight:600">{{ match.winner }}</span></p>
         </div>
         <div class="spacer"></div>
         <a href="{% url 'match_detail' room.pk match.pk %}" class="btn btn-outline btn-sm">Detail</a>
@@ -143,155 +151,107 @@
     {% endif %}
   </div>
 
-  <!-- Right: Chat + Members -->
+  <!-- RIGHT: Chat + Members -->
   <div>
 
-    <!-- ── Room Chat ── -->
-    <div class="card" style="padding:0;overflow:hidden;margin-bottom:1rem">
-      <div style="background:#1a1a2e;padding:0.75rem 1rem;color:#fff;font-weight:600;font-size:0.9rem">
-        💬 Room chat
+    <!-- Chat -->
+    <div class="card card-solid" style="padding:0;overflow:hidden;margin-bottom:1rem">
+      <div style="padding:0.75rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.5rem">
+        <span style="font-size:0.85rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px">💬 Chat</span>
+        <span style="margin-left:auto;font-size:0.72rem;color:var(--muted)">{{ members.count }} members</span>
       </div>
 
-      <!-- Message list -->
-      <div id="chat-box" style="height:300px;overflow-y:auto;padding:0.75rem;display:flex;flex-direction:column;gap:0.5rem;">
+      <div id="chat-box" style="height:280px;overflow-y:auto;padding:0.75rem;display:flex;flex-direction:column;gap:0.5rem">
         {% for msg in chat_messages %}
-        <div class="chat-msg {% if msg.user == request.user %}chat-me{% endif %}"
-             data-id="{{ msg.pk }}">
-          <span class="chat-name">
-            {{ msg.user.username }}
-            {% if msg.user == room.admin %}👑{% endif %}
-          </span>
+        <div class="chat-msg {% if msg.user == request.user %}chat-me{% endif %}" data-id="{{ msg.pk }}">
+          <span class="chat-name">{{ msg.user.username }}{% if msg.user == room.admin %} 👑{% endif %}</span>
           <span class="chat-text">{{ msg.text }}</span>
           <span class="chat-time">{{ msg.created_at|date:"H:i" }}</span>
         </div>
         {% empty %}
-        <p style="color:#aaa;font-size:0.85rem;text-align:center;margin-top:2rem">
-          No messages yet. Say something!
+        <p id="chat-empty" style="color:var(--muted);font-size:0.82rem;text-align:center;margin:auto">
+          No messages yet — say hi!
         </p>
         {% endfor %}
       </div>
 
-      <!-- Input -->
-      <form id="chat-form" style="display:flex;border-top:1px solid #eee;padding:0.5rem">
+      <form id="chat-form" style="display:flex;border-top:1px solid var(--border);padding:0.5rem 0.75rem;gap:0.5rem">
         {% csrf_token %}
         <input type="text" id="chat-input" maxlength="500"
-               placeholder="Type a message…"
-               style="flex:1;border:none;outline:none;font-size:0.9rem;padding:0.25rem 0.5rem;margin-bottom:0">
-        <button type="submit" class="btn btn-primary btn-sm" style="margin-left:0.5rem">Send</button>
+               placeholder="Message…"
+               style="flex:1;border:none;outline:none;font-size:0.88rem;padding:0.3rem;margin-bottom:0;background:transparent;color:var(--white)">
+        <button type="submit" class="btn btn-primary btn-sm">Send</button>
       </form>
     </div>
 
     <!-- Members -->
-    <h2>Members ({{ members.count }})</h2>
-    <div class="card" style="padding:1rem">
+    <p class="section-label">Members ({{ members.count }})</p>
+    <div class="card card-solid" style="padding:0.75rem">
       {% for member in members %}
-      <div style="padding:0.35rem 0;border-bottom:1px solid #f0f0f0;font-size:0.9rem">
-        {{ member.username }}
-        {% if member == room.admin %}<span class="badge badge-private" style="margin-left:4px">admin</span>{% endif %}
-        {% if member == request.user %}<span class="badge badge-upcoming" style="margin-left:2px">you</span>{% endif %}
+      <div style="display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0;border-bottom:1px solid var(--border)">
+        <span style="width:28px;height:28px;border-radius:50%;background:var(--navy3);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:var(--green)">
+          {{ member.username|slice:":1"|upper }}
+        </span>
+        <span style="font-size:0.88rem">{{ member.username }}</span>
+        {% if member == room.admin %}<span class="badge badge-private" style="margin-left:auto">admin</span>{% endif %}
+        {% if member == request.user %}<span class="badge badge-upcoming" style="{% if member != room.admin %}margin-left:auto{% endif %}">you</span>{% endif %}
       </div>
       {% endfor %}
     </div>
-    <a href="{% url 'leaderboard' room.pk %}"
-       class="btn btn-outline" style="width:100%;text-align:center;margin-top:0.5rem">
+    <a href="{% url 'leaderboard' room.pk %}" class="btn btn-outline btn-block" style="text-align:center;margin-top:0.75rem">
       🏆 Leaderboard
     </a>
   </div>
 
 </div>
 
-<!-- Chat styles + polling JS -->
-<style>
-.chat-msg {
-  display: flex; flex-direction: column;
-  max-width: 80%; align-self: flex-start;
-  background: #f5f5f5; border-radius: 10px 10px 10px 2px;
-  padding: 0.4rem 0.75rem; font-size: 0.88rem;
-}
-.chat-me {
-  align-self: flex-end;
-  background: #1a1a2e; color: #fff;
-  border-radius: 10px 10px 2px 10px;
-}
-.chat-name { font-size: 0.72rem; font-weight: 600; opacity: 0.7; margin-bottom: 2px; }
-.chat-me .chat-name { color: #aac; }
-.chat-text { word-break: break-word; }
-.chat-time { font-size: 0.68rem; opacity: 0.5; margin-top: 2px; align-self: flex-end; }
-</style>
-
 <script>
-const ROOM_PK   = {{ room.pk }};
-const CURRENT_USER = "{{ request.user.username }}";
-const CSRF      = document.querySelector('[name=csrfmiddlewaretoken]').value;
-const chatBox   = document.getElementById('chat-box');
-const chatForm  = document.getElementById('chat-form');
-const chatInput = document.getElementById('chat-input');
+const ROOM_PK = {{ room.pk }};
+const CSRF    = document.querySelector('[name=csrfmiddlewaretoken]').value;
+const chatBox = document.getElementById('chat-box');
+const chatForm= document.getElementById('chat-form');
+const chatInput=document.getElementById('chat-input');
+let lastId = {% if chat_messages %}{{ chat_messages.last.pk|default:0 }}{% else %}0{% endif %};
 
-let lastId = {% if chat_messages %}{{ chat_messages.last.pk }}{% else %}0{% endif %};
-
-// Scroll to bottom
-function scrollBottom() {
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
+function scrollBottom(){ chatBox.scrollTop = chatBox.scrollHeight; }
 scrollBottom();
 
-// Render a new message bubble
-function renderMsg(m) {
-  const div = document.createElement('div');
-  div.className = 'chat-msg' + (m.is_me ? ' chat-me' : '');
-  div.dataset.id = m.id;
-  div.innerHTML = `
-    <span class="chat-name">${m.username}${m.is_admin ? ' 👑' : ''}</span>
-    <span class="chat-text">${m.text}</span>
-    <span class="chat-time">${m.time}</span>`;
-  chatBox.appendChild(div);
+function renderMsg(m){
+  const el = document.getElementById('chat-empty');
+  if(el) el.remove();
+  const d = document.createElement('div');
+  d.className = 'chat-msg' + (m.is_me ? ' chat-me' : '');
+  d.dataset.id = m.id;
+  d.innerHTML = `<span class="chat-name">${m.username}${m.is_admin?' 👑':''}</span><span class="chat-text">${m.text}</span><span class="chat-time">${m.time}</span>`;
+  chatBox.appendChild(d);
 }
 
-// Remove "no messages" placeholder if present
-function clearPlaceholder() {
-  const p = chatBox.querySelector('p');
-  if (p) p.remove();
-}
-
-// Poll for new messages every 5 seconds
-async function pollMessages() {
-  try {
-    const res  = await fetch(`/rooms/${ROOM_PK}/chat/messages/?since=${lastId}`);
-    const data = await res.json();
-    if (data.messages && data.messages.length > 0) {
-      clearPlaceholder();
-      data.messages.forEach(m => {
-        renderMsg(m);
-        lastId = Math.max(lastId, m.id);
-      });
+async function poll(){
+  try{
+    const r = await fetch(`/rooms/${ROOM_PK}/chat/messages/?since=${lastId}`);
+    const d = await r.json();
+    if(d.messages?.length){
+      d.messages.forEach(m=>{renderMsg(m);lastId=Math.max(lastId,m.id);});
       scrollBottom();
     }
-  } catch (e) { /* silently ignore network errors */ }
+  }catch(e){}
 }
-setInterval(pollMessages, 5000);
+setInterval(poll,5000);
 
-// Send message via AJAX
-chatForm.addEventListener('submit', async (e) => {
+chatForm.addEventListener('submit',async e=>{
   e.preventDefault();
-  const text = chatInput.value.trim();
-  if (!text) return;
-  chatInput.value = '';
-
-  try {
-    const res  = await fetch(`/rooms/${ROOM_PK}/chat/send/`, {
-      method: 'POST',
-      headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `text=${encodeURIComponent(text)}`,
+  const text=chatInput.value.trim();
+  if(!text)return;
+  chatInput.value='';
+  try{
+    const r=await fetch(`/rooms/${ROOM_PK}/chat/send/`,{
+      method:'POST',
+      headers:{'X-CSRFToken':CSRF,'Content-Type':'application/x-www-form-urlencoded'},
+      body:`text=${encodeURIComponent(text)}`
     });
-    const m = await res.json();
-    if (m.id) {
-      clearPlaceholder();
-      renderMsg(m);
-      lastId = Math.max(lastId, m.id);
-      scrollBottom();
-    }
-  } catch (e) { /* silently ignore */ }
+    const m=await r.json();
+    if(m.id){renderMsg(m);lastId=Math.max(lastId,m.id);scrollBottom();}
+  }catch(e){}
 });
 </script>
-
 {% endblock %}

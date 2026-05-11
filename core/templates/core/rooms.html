@@ -1,47 +1,62 @@
 {% extends 'core/base.html' %}
 {% block content %}
 
-<div class="flex" style="margin-bottom:1.5rem">
-  <h2 style="margin:0">Prediction rooms</h2>
+<div class="flex" style="margin-bottom:2rem">
+  <div>
+    <p class="section-label">Prediction</p>
+    <h2 style="font-size:1.8rem;margin:0">Rooms</h2>
+  </div>
   <div class="spacer"></div>
   <a href="{% url 'room_create' %}" class="btn btn-primary">+ Create room</a>
-  <a href="{% url 'room_join' %}" class="btn btn-outline">Join private room</a>
+  <a href="{% url 'room_join' %}" class="btn btn-outline">Join private</a>
 </div>
 
 {% if my_rooms %}
-<h2>My rooms</h2>
+<p class="section-label">My rooms</p>
 {% for room in my_rooms %}
-<div class="card">
+<div class="card" style="margin-bottom:0.75rem">
   <div class="flex">
     <div>
-      <strong>{{ room.name }}</strong>
-      <span class="badge badge-{{ room.room_type }}" style="margin-left:6px">{{ room.get_room_type_display }}</span>
-      <p class="meta">Admin: {{ room.admin.username }} · {{ room.members.count }} members</p>
-      {% if room.description %}<p style="font-size:0.85rem;color:#555;margin-top:4px">{{ room.description }}</p>{% endif %}
+      <div class="flex" style="gap:0.5rem;margin-bottom:0.3rem">
+        <strong style="font-family:'Barlow Condensed',sans-serif;font-size:1.15rem">{{ room.name }}</strong>
+        <span class="badge badge-{{ room.room_type }}">{{ room.get_room_type_display }}</span>
+        {% if room.admin == request.user %}
+          <span class="badge" style="background:rgba(255,171,0,0.15);color:var(--amber)">Admin</span>
+        {% endif %}
+      </div>
+      <p class="meta">{{ room.members.count }} member{{ room.members.count|pluralize }}
+        {% if room.description %} · {{ room.description|truncatechars:60 }}{% endif %}
+      </p>
     </div>
     <div class="spacer"></div>
-    <a href="{% url 'room_detail' room.pk %}" class="btn btn-primary btn-sm">Enter</a>
+    <a href="{% url 'room_detail' room.pk %}" class="btn btn-primary btn-sm">Enter →</a>
   </div>
 </div>
 {% endfor %}
+<hr class="divider">
 {% endif %}
 
-<h2 style="margin-top:1.5rem">Public rooms</h2>
+<p class="section-label">Public rooms</p>
 {% for room in public_rooms %}
-<div class="card">
+<div class="card" style="margin-bottom:0.75rem">
   <div class="flex">
     <div>
-      <strong>{{ room.name }}</strong>
-      <span class="badge badge-public" style="margin-left:6px">Public</span>
-      <p class="meta">Admin: {{ room.admin.username }} · {{ room.members.count }} members</p>
-      {% if room.description %}<p style="font-size:0.85rem;color:#555;margin-top:4px">{{ room.description }}</p>{% endif %}
+      <div class="flex" style="gap:0.5rem;margin-bottom:0.3rem">
+        <strong style="font-family:'Barlow Condensed',sans-serif;font-size:1.15rem">{{ room.name }}</strong>
+        <span class="badge badge-public">Public</span>
+      </div>
+      <p class="meta">{{ room.members.count }} member{{ room.members.count|pluralize }}
+        · Admin: {{ room.admin.username }}</p>
     </div>
     <div class="spacer"></div>
-    <a href="{% url 'room_detail' room.pk %}" class="btn btn-outline btn-sm">Enter</a>
+    <a href="{% url 'room_detail' room.pk %}" class="btn btn-outline btn-sm">Enter →</a>
   </div>
 </div>
 {% empty %}
-<p style="color:#888">No public rooms yet. Create one!</p>
+<div class="card" style="text-align:center;padding:2.5rem;color:var(--muted)">
+  <p style="font-size:2rem;margin-bottom:0.5rem">🏟</p>
+  <p>No public rooms yet. Be the first to create one!</p>
+</div>
 {% endfor %}
 
 {% endblock %}

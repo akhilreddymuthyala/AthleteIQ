@@ -1,23 +1,23 @@
 {% extends 'core/base.html' %}
 {% block content %}
-<div style="max-width:480px;margin:auto">
-  <div class="card">
-    <h2 style="color:#c0392b">🗑 Delete room</h2>
-    <div class="card" style="background:#fff8f8;border-color:#f5c6cb;margin:1rem 0">
-      <strong>{{ room.name }}</strong>
-      <p class="meta">{{ room.members.count }} members · {{ room.room_type }}</p>
-    </div>
-    <p style="margin-bottom:1rem;font-size:0.95rem">
-      This will permanently delete the room and <strong>all</strong> its matches,
-      predictions, points, and announcements. This cannot be undone.
-    </p>
-    <form method="post">
-      {% csrf_token %}
-      <div class="flex">
-        <button type="submit" class="btn btn-danger">Yes, delete room</button>
-        <a href="{% url 'admin_dashboard' room.pk %}" class="btn btn-outline">Cancel</a>
-      </div>
-    </form>
+<div style="max-width:480px;margin:3rem auto">
+  <p class="section-label">Danger</p>
+  <h2 style="color:var(--red);margin-bottom:1.5rem">🗑 Delete room</h2>
+  <div class="card" style="background:var(--navy3);margin-bottom:1rem">
+    <strong style="font-family:'Barlow Condensed',sans-serif;font-size:1.15rem">{{ room.name }}</strong>
+    <p class="meta">{{ room.members.count }} members · {{ room.get_room_type_display }}</p>
   </div>
+  <p style="font-size:0.9rem;color:var(--muted);margin-bottom:0.5rem">
+    This will permanently delete the room and <strong style="color:var(--white)">all</strong> its matches,
+    predictions, points, and announcements.
+  </p>
+  <p style="font-size:0.9rem;color:var(--red);margin-bottom:1.5rem;font-weight:600">This cannot be undone.</p>
+  <form method="post">
+    {% csrf_token %}
+    <div class="flex">
+      <button type="submit" class="btn btn-danger">Yes, delete room</button>
+      <a href="{% url 'admin_dashboard' room.pk %}" class="btn btn-outline">Cancel</a>
+    </div>
+  </form>
 </div>
 {% endblock %}

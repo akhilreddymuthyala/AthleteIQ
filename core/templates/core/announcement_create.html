@@ -1,8 +1,10 @@
 {% extends 'core/base.html' %}
 {% block content %}
 <div style="max-width:520px;margin:0 auto">
-  <p class="section-label">{{ room.name }} · Admin</p>
-  <h2 style="margin-bottom:1.5rem">Add a match</h2>
+  <p class="section-label">Admin · {{ room.name }}</p>
+  <h2 style="margin-bottom:0.5rem">New Challenge</h2>
+  <p class="meta" style="margin-bottom:1.5rem">Saving this will notify all room members via n8n and start the lock timer.</p>
+
   <div class="card card-solid">
     <form method="post">
       {% csrf_token %}
@@ -10,14 +12,15 @@
       <div style="margin-bottom:0.25rem">
         <label>{{ field.label }}</label>
         {{ field }}
+        {% if field.help_text %}<p class="meta" style="margin-top:-0.75rem;margin-bottom:0.75rem">{{ field.help_text }}</p>{% endif %}
         {% if field.errors %}
           <p style="color:var(--red);font-size:0.8rem;margin-top:-0.75rem;margin-bottom:0.75rem">{{ field.errors.0 }}</p>
         {% endif %}
       </div>
       {% endfor %}
       <div class="flex" style="margin-top:0.5rem">
-        <button type="submit" class="btn btn-primary">Add match</button>
-        <a href="{% url 'admin_dashboard' room.pk %}" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-primary">Post challenge</button>
+        <a href="{% url 'announcement_list' room.pk %}" class="btn btn-outline">Cancel</a>
       </div>
     </form>
   </div>

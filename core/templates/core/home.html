@@ -1,39 +1,78 @@
 {% extends 'core/base.html' %}
 {% block content %}
 
+<div style="margin-bottom:2.5rem">
+  <p class="section-label">Welcome to</p>
+  <h1 style="font-size:3rem;line-height:1">Athl<span style="color:var(--green)">et</span>IQ</h1>
+  <p style="color:var(--muted);margin-top:0.5rem;font-size:0.95rem">
+    Predict. Compete. Dominate the leaderboard.
+  </p>
+  {% if not user.is_authenticated %}
+  <div class="flex" style="margin-top:1.25rem">
+    <a href="{% url 'register' %}" class="btn btn-primary">Get started free</a>
+    <a href="{% url 'login' %}" class="btn btn-outline">Login</a>
+  </div>
+  {% endif %}
+</div>
+
 {% if live %}
-<h2>Live now</h2>
+<p class="section-label">🔴 Live now</p>
 {% for match in live %}
-<div class="card">
-  <span class="badge badge-live">Live</span>
-  <strong style="margin-left:8px">{{ match.team_a }} vs {{ match.team_b }}</strong>
-  <span style="color:#888;font-size:0.85rem;margin-left:8px">{{ match.league.name }}</span>
+<div class="card border-red" style="margin-bottom:0.75rem">
+  <div class="flex">
+    <div>
+      <strong style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem">
+        {{ match.team_a }} <span style="color:var(--muted)">vs</span> {{ match.team_b }}
+      </strong>
+      <p class="meta">{{ match.league.name }} · {{ match.league.sport.name }}</p>
+    </div>
+    <div class="spacer"></div>
+    <span class="badge badge-live">● Live</span>
+  </div>
 </div>
 {% endfor %}
 {% endif %}
 
-<h2>Upcoming matches</h2>
+<p class="section-label" style="margin-top:1.5rem">Upcoming matches</p>
 {% for match in upcoming %}
-<div class="card">
-  <span class="badge badge-upcoming">Upcoming</span>
-  <strong style="margin-left:8px">{{ match.team_a }} vs {{ match.team_b }}</strong>
-  <span style="color:#888;font-size:0.85rem;margin-left:8px">
-    {{ match.league.name }} · {{ match.scheduled_at|date:"d M Y, H:i" }}
-  </span>
+<div class="card" style="margin-bottom:0.75rem">
+  <div class="flex">
+    <div>
+      <strong style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem">
+        {{ match.team_a }} <span style="color:var(--muted)">vs</span> {{ match.team_b }}
+      </strong>
+      <p class="meta">{{ match.league.name }} · {{ match.scheduled_at|date:"d M Y, H:i" }}</p>
+    </div>
+    <div class="spacer"></div>
+    <span class="badge badge-upcoming">Upcoming</span>
+  </div>
 </div>
 {% empty %}
-<p style="color:#888">No upcoming matches yet. Admin can add them.</p>
+<div class="card" style="text-align:center;padding:2.5rem;color:var(--muted)">
+  <p style="font-size:2rem;margin-bottom:0.5rem">🏟</p>
+  <p>No upcoming matches. Room admins can add them.</p>
+</div>
 {% endfor %}
 
-<h2 style="margin-top:2rem">Recent results</h2>
+{% if finished %}
+<p class="section-label" style="margin-top:2rem">Recent results</p>
 {% for match in finished %}
-<div class="card">
-  <span class="badge badge-finished">Finished</span>
-  <strong style="margin-left:8px">{{ match.team_a }} vs {{ match.team_b }}</strong>
-  <span style="color:#2e7d32;font-size:0.85rem;margin-left:8px">Winner: {{ match.winner }}</span>
+<div class="card border-green" style="margin-bottom:0.75rem">
+  <div class="flex">
+    <div>
+      <strong style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem">
+        {{ match.team_a }} <span style="color:var(--muted)">vs</span> {{ match.team_b }}
+      </strong>
+      <p class="meta">{{ match.league.name }}</p>
+    </div>
+    <div class="spacer"></div>
+    <div style="text-align:right">
+      <p style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px">Winner</p>
+      <strong style="color:var(--green)">{{ match.winner }}</strong>
+    </div>
+  </div>
 </div>
-{% empty %}
-<p style="color:#888">No results yet.</p>
 {% endfor %}
+{% endif %}
 
 {% endblock %}

@@ -1,82 +1,74 @@
 {% extends 'core/base.html' %}
 {% block content %}
 
-<div class="flex" style="margin-bottom:1.5rem">
+<div class="flex" style="margin-bottom:2rem">
   <div>
-    <h2 style="margin:0">⚙️ Admin dashboard</h2>
-    <p class="meta">{{ room.name }}</p>
+    <p class="section-label">{{ room.name }} · Admin</p>
+    <h2 style="font-size:1.8rem;margin:0">⚙ Dashboard</h2>
   </div>
   <div class="spacer"></div>
   <a href="{% url 'match_add' room.pk %}" class="btn btn-primary">+ Add match</a>
+  <a href="{% url 'announcement_create' room.pk %}" class="btn btn-outline">📢 Challenge</a>
   <a href="{% url 'room_detail' room.pk %}" class="btn btn-outline btn-sm">← Room</a>
 </div>
 
-<!-- Matches table -->
+<!-- Matches -->
 {% if matches %}
-<div class="card" style="padding:0;overflow:hidden">
-  <table style="width:100%;border-collapse:collapse;font-size:0.9rem">
+<div class="card card-solid" style="padding:0;overflow:hidden;margin-bottom:2rem">
+  <table class="iq-table">
     <thead>
-      <tr style="background:#1a1a2e;color:#fff;text-align:left">
-        <th style="padding:0.75rem 1rem">Match</th>
-        <th style="padding:0.75rem 1rem">League</th>
-        <th style="padding:0.75rem 1rem">Scheduled</th>
-        <th style="padding:0.75rem 1rem;text-align:center">Status</th>
-        <th style="padding:0.75rem 1rem;text-align:center">Preds</th>
-        <th style="padding:0.75rem 1rem;text-align:center">Winner</th>
-        <th style="padding:0.75rem 1rem;text-align:center">Actions</th>
+      <tr>
+        <th>Match</th>
+        <th>League</th>
+        <th>Scheduled</th>
+        <th style="text-align:center">Status</th>
+        <th style="text-align:center">Picks</th>
+        <th style="text-align:center">Winner</th>
+        <th style="text-align:center">Actions</th>
       </tr>
     </thead>
     <tbody>
       {% for match in matches %}
-      <tr style="border-bottom:1px solid #f0f0f0">
-        <td style="padding:0.75rem 1rem">
+      <tr>
+        <td>
           <a href="{% url 'match_detail' room.pk match.pk %}"
-             style="font-weight:600;color:#1a1a2e;text-decoration:none">
+             style="font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;color:var(--white);text-decoration:none">
             {{ match.team_a }} vs {{ match.team_b }}
           </a>
         </td>
-        <td style="padding:0.75rem 1rem;color:#666">{{ match.league.name }}</td>
-        <td style="padding:0.75rem 1rem;color:#666">{{ match.scheduled_at|date:"d M, H:i" }}</td>
-        <td style="padding:0.75rem 1rem;text-align:center">
-          <span class="badge badge-{{ match.status }}">{{ match.get_status_display }}</span>
-        </td>
-        <td style="padding:0.75rem 1rem;text-align:center">{{ match.prediction_count }}</td>
-        <td style="padding:0.75rem 1rem;text-align:center;color:#2e7d32;font-weight:600">
-          {{ match.winner|default:"—" }}
-        </td>
-        <td style="padding:0.75rem 1rem;text-align:center">
-          <div class="flex" style="justify-content:center;gap:0.4rem">
+        <td style="color:var(--muted)">{{ match.league.name }}</td>
+        <td style="color:var(--muted);font-size:0.82rem">{{ match.scheduled_at|date:"d M, H:i" }}</td>
+        <td style="text-align:center"><span class="badge badge-{{ match.status }}">{{ match.get_status_display }}</span></td>
+        <td style="text-align:center;color:var(--muted)">{{ match.prediction_count }}</td>
+        <td style="text-align:center;color:var(--green);font-weight:600">{{ match.winner|default:"—" }}</td>
+        <td style="text-align:center">
+          <div class="flex" style="justify-content:center;gap:0.35rem">
             {% if match.status == 'upcoming' %}
               <a href="{% url 'match_set_live' room.pk match.pk %}"
-                 class="btn btn-primary btn-sm"
-                 onclick="return confirm('Set LIVE? Members cannot predict after this.')">▶ Live</a>
-              <a href="{% url 'match_set_result' room.pk match.pk %}"
-                 class="btn btn-outline btn-sm">Set result</a>
+                 class="btn btn-amber btn-sm"
+                 onclick="return confirm('Set LIVE? Predictions will be locked.')">▶ Live</a>
+              <a href="{% url 'match_set_result' room.pk match.pk %}" class="btn btn-outline btn-sm">Result</a>
               <a href="{% url 'match_cancel' room.pk match.pk %}"
-                 class="btn btn-sm btn-danger"
+                 class="btn btn-danger btn-sm"
                  onclick="return confirm('Cancel this match?')">✕</a>
               <a href="{% url 'match_delete' room.pk match.pk %}"
-                 class="btn btn-sm btn-danger"
-                 onclick="return confirm('DELETE this match permanently?')">🗑</a>
-
+                 class="btn btn-danger btn-sm"
+                 onclick="return confirm('Delete permanently?')">🗑</a>
             {% elif match.status == 'live' %}
-              <a href="{% url 'match_set_result' room.pk match.pk %}"
-                 class="btn btn-primary btn-sm">🏁 Set result</a>
+              <a href="{% url 'match_set_result' room.pk match.pk %}" class="btn btn-primary btn-sm">🏁 Result</a>
               <a href="{% url 'match_cancel' room.pk match.pk %}"
-                 class="btn btn-sm btn-danger"
-                 onclick="return confirm('Cancel this match?')">✕</a>
-
+                 class="btn btn-danger btn-sm"
+                 onclick="return confirm('Cancel?')">✕</a>
             {% elif match.status == 'finished' %}
-              <span style="color:#2e7d32;font-size:0.8rem">✅ Scored</span>
+              <span style="color:var(--green);font-size:0.8rem">✅ Done</span>
               <a href="{% url 'match_delete' room.pk match.pk %}"
-                 class="btn btn-sm btn-danger"
-                 onclick="return confirm('DELETE this match? All predictions will also be deleted.')">🗑</a>
-
+                 class="btn btn-danger btn-sm"
+                 onclick="return confirm('Delete?')">🗑</a>
             {% elif match.status == 'cancelled' %}
-              <span style="color:#999;font-size:0.8rem">Cancelled</span>
+              <span style="color:var(--muted);font-size:0.8rem">Cancelled</span>
               <a href="{% url 'match_delete' room.pk match.pk %}"
-                 class="btn btn-sm btn-danger"
-                 onclick="return confirm('DELETE this match?')">🗑</a>
+                 class="btn btn-danger btn-sm"
+                 onclick="return confirm('Delete?')">🗑</a>
             {% endif %}
           </div>
         </td>
@@ -86,8 +78,8 @@
   </table>
 </div>
 {% else %}
-<div class="card" style="text-align:center;padding:3rem;color:#888">
-  <p style="font-size:2rem">🏏</p>
+<div class="card" style="text-align:center;padding:3rem;color:var(--muted);margin-bottom:2rem">
+  <p style="font-size:2.5rem;margin-bottom:0.5rem">🏏</p>
   <p>No matches yet.</p>
   <a href="{% url 'match_add' room.pk %}" class="btn btn-primary" style="margin-top:1rem">Add first match</a>
 </div>
@@ -95,31 +87,26 @@
 
 <!-- Transfer admin -->
 {% if members %}
-<div class="card" style="margin-top:2rem">
-  <h2 style="margin-bottom:0.75rem">👑 Transfer admin role</h2>
-  <p class="meta" style="margin-bottom:1rem">
-    Make another member the room admin. You will become a regular member.
-  </p>
-  <div style="display:flex;flex-wrap:wrap;gap:0.5rem">
+<div class="card card-solid" style="margin-bottom:1.5rem">
+  <p class="section-label">Transfer admin role</p>
+  <p class="meta" style="margin-bottom:1rem">Make another member the room admin. You'll become a regular member.</p>
+  <div class="flex" style="flex-wrap:wrap;gap:0.5rem">
     {% for member in members %}
     <form method="post" action="{% url 'transfer_admin' room.pk member.pk %}"
           onsubmit="return confirm('Make {{ member.username }} the new admin? You will lose admin access.')">
       {% csrf_token %}
-      <button type="submit" class="btn btn-outline btn-sm">
-        👤 Make {{ member.username }} admin
-      </button>
+      <button type="submit" class="btn btn-outline btn-sm">👤 {{ member.username }}</button>
     </form>
     {% endfor %}
   </div>
 </div>
 {% endif %}
 
-<!-- Danger zone — delete room -->
+<!-- Danger zone -->
 <div class="danger-zone">
-  <h3>⚠️ Danger zone</h3>
-  <p style="font-size:0.9rem;color:#555;margin-bottom:1rem">
-    Deleting the room permanently removes all matches, predictions, points, and announcements.
-    This cannot be undone.
+  <h3>⚠ Danger zone</h3>
+  <p style="font-size:0.88rem;color:var(--muted);margin-bottom:1rem">
+    Permanently deletes the room and all its matches, predictions, points, and announcements.
   </p>
   <a href="{% url 'room_delete' room.pk %}" class="btn btn-danger">🗑 Delete this room</a>
 </div>

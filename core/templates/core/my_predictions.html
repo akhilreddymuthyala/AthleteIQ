@@ -1,30 +1,41 @@
 {% extends 'core/base.html' %}
 {% block content %}
 
-<h2>My predictions</h2>
+<p class="section-label">History</p>
+<h2 style="margin-bottom:1.5rem">My Predictions</h2>
 
 {% for pred in predictions %}
-<div class="card">
+<div class="card {% if pred.result == 'correct' %}border-green{% elif pred.result == 'incorrect' %}border-red{% endif %}" style="margin-bottom:0.75rem">
   <div class="flex">
     <div>
-      <strong>{{ pred.match.team_a }} vs {{ pred.match.team_b }}</strong>
-      <span class="badge badge-{{ pred.match.status }}" style="margin-left:6px">{{ pred.match.get_status_display }}</span>
+      <div class="flex" style="gap:0.5rem;margin-bottom:0.3rem">
+        <strong style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem">
+          {{ pred.match.team_a }} vs {{ pred.match.team_b }}
+        </strong>
+        <span class="badge badge-{{ pred.match.status }}">{{ pred.match.get_status_display }}</span>
+      </div>
       <p class="meta">
         Room: {{ pred.room.name }} ·
-        Predicted: <strong>{{ pred.predicted_winner }}</strong> ·
+        Picked: <strong style="color:var(--white)">{{ pred.predicted_winner }}</strong> ·
         {{ pred.created_at|date:"d M Y" }}
       </p>
       {% if pred.match.status == 'finished' %}
-        <p class="meta">Match winner: <strong>{{ pred.match.winner }}</strong></p>
+        <p class="meta">Match winner: <span style="color:var(--green);font-weight:600">{{ pred.match.winner }}</span></p>
       {% endif %}
     </div>
-    <div>
-      <span class="badge badge-{{ pred.result }}">{{ pred.get_result_display }}</span>
-    </div>
+    <div class="spacer"></div>
+    <span class="badge badge-{{ pred.result }}">
+      {% if pred.result == 'correct' %}✓ Correct
+      {% elif pred.result == 'incorrect' %}✗ Wrong
+      {% else %}Pending{% endif %}
+    </span>
   </div>
 </div>
 {% empty %}
-<p style="color:#888">You haven't made any predictions yet. <a href="{% url 'rooms_list' %}">Browse rooms</a></p>
+<div class="card" style="text-align:center;padding:3rem;color:var(--muted)">
+  <p style="font-size:2rem;margin-bottom:0.5rem">🎯</p>
+  <p>No predictions yet. <a href="{% url 'rooms_list' %}" style="color:var(--green)">Browse rooms →</a></p>
+</div>
 {% endfor %}
 
 {% endblock %}

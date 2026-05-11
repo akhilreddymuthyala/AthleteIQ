@@ -1,0 +1,21 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div style="max-width:480px;margin:3rem auto">
+  <p class="section-label">Admin transfer</p>
+  <h2 style="margin-bottom:1.5rem">👑 Transfer admin role</h2>
+  <div class="card" style="background:rgba(255,171,0,0.06);border:1px solid rgba(255,171,0,0.2);margin-bottom:1.5rem">
+    <p style="font-size:0.95rem">
+      You are making <strong style="color:var(--amber)">{{ new_admin.username }}</strong> the admin of
+      <strong style="color:var(--white)">{{ room.name }}</strong>.
+    </p>
+    <p class="meta" style="margin-top:0.5rem">You will become a regular member and lose admin access immediately.</p>
+  </div>
+  <form method="post">
+    {% csrf_token %}
+    <div class="flex">
+      <button type="submit" class="btn btn-amber">Yes, transfer admin</button>
+      <a href="{% url 'admin_dashboard' room.pk %}" class="btn btn-outline">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

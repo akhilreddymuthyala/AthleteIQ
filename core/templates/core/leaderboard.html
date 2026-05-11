@@ -1,87 +1,111 @@
 {% extends 'core/base.html' %}
 {% block content %}
 
-<div class="flex" style="margin-bottom:1.5rem">
+<div class="flex" style="margin-bottom:2rem">
   <div>
-    <h2 style="margin:0">🏆 Leaderboard</h2>
-    <p class="meta">{{ room.name }}</p>
+    <p class="section-label">{{ room.name }}</p>
+    <h2 style="font-size:1.8rem;margin:0">🏆 Leaderboard</h2>
   </div>
   <div class="spacer"></div>
-  <a href="{% url 'room_detail' room.pk %}" class="btn btn-outline btn-sm">← Back to room</a>
+  <a href="{% url 'room_detail' room.pk %}" class="btn btn-outline btn-sm">← Room</a>
 </div>
 
+{% if user_points %}
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-bottom:1.5rem">
+  <div class="stat-pill" style="border-color:rgba(0,230,118,0.2)">
+    <div class="num" style="color:var(--green)">{{ user_points.total_points }}</div>
+    <div class="lbl">Your Points</div>
+  </div>
+  <div class="stat-pill">
+    <div class="num" style="color:var(--amber)">🔥 {{ user_points.streak }}</div>
+    <div class="lbl">Streak</div>
+  </div>
+  <div class="stat-pill">
+    <div class="num">{{ user_points.best_streak }}</div>
+    <div class="lbl">Best streak</div>
+  </div>
+  <div class="stat-pill">
+    <div class="num" style="color:var(--green)">{{ user_points.accuracy }}%</div>
+    <div class="lbl">Accuracy</div>
+  </div>
+</div>
+{% endif %}
+
 {% if ranked %}
-<div class="card" style="padding:0;overflow:hidden">
-  <table style="width:100%;border-collapse:collapse;font-size:0.9rem">
+<div class="card card-solid" style="padding:0;overflow:hidden">
+  <table class="iq-table">
     <thead>
-      <tr style="background:#1a1a2e;color:#fff;text-align:left">
-        <th style="padding:0.75rem 1rem">Rank</th>
-        <th style="padding:0.75rem 1rem">Player</th>
-        <th style="padding:0.75rem 1rem;text-align:center">Points</th>
-        <th style="padding:0.75rem 1rem;text-align:center">Streak 🔥</th>
-        <th style="padding:0.75rem 1rem;text-align:center">Best streak</th>
-        <th style="padding:0.75rem 1rem;text-align:center">Correct</th>
-        <th style="padding:0.75rem 1rem;text-align:center">Total</th>
-        <th style="padding:0.75rem 1rem;text-align:center">Accuracy</th>
+      <tr>
+        <th style="width:50px">#</th>
+        <th>Player</th>
+        <th style="text-align:center">Points</th>
+        <th style="text-align:center">Streak</th>
+        <th style="text-align:center">Best</th>
+        <th style="text-align:center">Correct</th>
+        <th style="text-align:center">Accuracy</th>
       </tr>
     </thead>
     <tbody>
       {% for row in ranked %}
-      <tr style="
-        border-bottom: 1px solid #f0f0f0;
-        {% if row.user == request.user %}background:#f0f4ff;font-weight:600;{% endif %}
-        {% if row.rank == 1 %}background:#fffbea;{% endif %}
-      ">
-        <td style="padding:0.75rem 1rem">
-          {% if row.rank == 1 %}🥇
-          {% elif row.rank == 2 %}🥈
-          {% elif row.rank == 3 %}🥉
-          {% else %}{{ row.rank }}{% endif %}
+      <tr style="{% if row.user == request.user %}background:rgba(0,230,118,0.04);{% endif %}{% if row.rank == 1 %}background:rgba(255,171,0,0.05);{% endif %}">
+        <td style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:700;color:{% if row.rank == 1 %}var(--amber){% elif row.rank == 2 %}var(--muted){% elif row.rank == 3 %}#cd7f32{% else %}var(--muted){% endif %}">
+          {% if row.rank == 1 %}🥇{% elif row.rank == 2 %}🥈{% elif row.rank == 3 %}🥉{% else %}{{ row.rank }}{% endif %}
         </td>
-        <td style="padding:0.75rem 1rem">
-          {{ row.user.username }}
-          {% if row.user == request.user %}<span class="badge badge-upcoming" style="margin-left:4px">you</span>{% endif %}
+        <td>
+          <div style="display:flex;align-items:center;gap:0.5rem">
+            <span style="width:30px;height:30px;border-radius:50%;background:var(--navy3);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:var(--green)">
+              {{ row.user.username|slice:":1"|upper }}
+            </span>
+            <span style="font-weight:{% if row.user == request.user %}700{% else %}500{% endif %}">
+              {{ row.user.username }}
+            </span>
+            {% if row.user == request.user %}<span class="badge badge-upcoming">you</span>{% endif %}
+          </div>
         </td>
-        <td style="padding:0.75rem 1rem;text-align:center;font-weight:700;color:#1a1a2e">{{ row.total_points }}</td>
-        <td style="padding:0.75rem 1rem;text-align:center;color:#e65100;font-weight:600">
-          {% if row.streak > 0 %}🔥 {{ row.streak }}{% else %}—{% endif %}
+        <td style="text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:1.2rem;font-weight:800;color:var(--green)">
+          {{ row.total_points }}
         </td>
-        <td style="padding:0.75rem 1rem;text-align:center">{{ row.best_streak }}</td>
-        <td style="padding:0.75rem 1rem;text-align:center;color:#2e7d32">{{ row.correct_predictions }}</td>
-        <td style="padding:0.75rem 1rem;text-align:center">{{ row.total_predictions }}</td>
-        <td style="padding:0.75rem 1rem;text-align:center">{{ row.accuracy }}%</td>
+        <td style="text-align:center;color:var(--amber);font-weight:600">
+          {% if row.streak > 0 %}🔥 {{ row.streak }}{% else %}<span style="color:var(--muted)">—</span>{% endif %}
+        </td>
+        <td style="text-align:center;color:var(--muted)">{{ row.best_streak }}</td>
+        <td style="text-align:center;color:var(--green)">{{ row.correct_predictions }}/{{ row.total_predictions }}</td>
+        <td style="text-align:center">
+          <span style="color:{% if row.accuracy >= 70 %}var(--green){% elif row.accuracy >= 40 %}var(--amber){% else %}var(--red){% endif %}">
+            {{ row.accuracy }}%
+          </span>
+        </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
 </div>
-
 {% else %}
-<div class="card" style="text-align:center;padding:3rem;color:#888">
-  <p style="font-size:1.5rem;margin-bottom:0.5rem">🏆</p>
-  <p>No scores yet. Make predictions and wait for match results!</p>
+<div class="card" style="text-align:center;padding:3rem;color:var(--muted)">
+  <p style="font-size:2rem;margin-bottom:0.5rem">🏆</p>
+  <p>No scores yet. Make predictions and wait for results!</p>
 </div>
 {% endif %}
 
-<!-- Scoring rules card -->
-<div class="card" style="margin-top:1.5rem;background:#f9f9f9">
-  <h2 style="margin-bottom:0.75rem">Scoring rules</h2>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;text-align:center">
-    <div>
-      <p style="font-size:1.4rem;font-weight:700;color:#2e7d32">+10</p>
-      <p class="meta">Correct prediction (base)</p>
+<!-- Scoring rules -->
+<div class="card" style="margin-top:1.5rem">
+  <p class="section-label">Scoring rules</p>
+  <div class="grid-3">
+    <div class="stat-pill" style="border-color:rgba(0,230,118,0.2)">
+      <div class="num" style="color:var(--green)">+10</div>
+      <div class="lbl">Correct pick</div>
     </div>
-    <div>
-      <p style="font-size:1.4rem;font-weight:700;color:#e65100">+2×streak</p>
-      <p class="meta">Streak bonus per level</p>
+    <div class="stat-pill" style="border-color:rgba(255,171,0,0.2)">
+      <div class="num" style="color:var(--amber)">+2×</div>
+      <div class="lbl">Streak bonus</div>
     </div>
-    <div>
-      <p style="font-size:1.4rem;font-weight:700;color:#c0392b">0</p>
-      <p class="meta">Wrong prediction (streak resets)</p>
+    <div class="stat-pill" style="border-color:rgba(255,61,87,0.15)">
+      <div class="num" style="color:var(--red)">0</div>
+      <div class="lbl">Wrong (resets)</div>
     </div>
   </div>
   <p class="meta" style="margin-top:0.75rem;text-align:center">
-    Example: 3rd correct in a row = 10 + (2 × 2) = <strong>14 pts</strong>
+    Example: 3rd correct in a row = 10 + (2×2) = <strong style="color:var(--green)">14 pts</strong>
   </p>
 </div>
 

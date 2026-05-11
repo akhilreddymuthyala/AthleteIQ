@@ -1,25 +1,26 @@
 {% extends 'core/base.html' %}
 {% block content %}
-<div style="max-width:400px;margin:auto">
-  <div class="card">
-    <h2>Login</h2>
-    <form method="post" style="margin-top:1rem">
+<div style="max-width:420px;margin:4rem auto">
+  <div style="text-align:center;margin-bottom:2rem">
+    <h1 style="font-size:2.5rem">Athl<span style="color:var(--green)">et</span>IQ</h1>
+    <p class="meta">Sign in to your account</p>
+  </div>
+  <div class="card card-solid">
+    <form method="post">
       {% csrf_token %}
       {% for field in form %}
-        <div style="margin-bottom:0.75rem">
-          <label style="font-size:0.85rem;color:#555">{{ field.label }}</label>
-          {{ field }}
-          {% if field.errors %}
-            <p style="color:red;font-size:0.8rem">{{ field.errors.0 }}</p>
-          {% endif %}
-        </div>
+      <div style="margin-bottom:0.25rem">
+        <label>{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+          <p style="color:var(--red);font-size:0.8rem;margin-top:-0.75rem;margin-bottom:0.75rem">{{ field.errors.0 }}</p>
+        {% endif %}
+      </div>
       {% endfor %}
-      <button type="submit" style="width:100%;padding:0.6rem;background:#1a1a2e;color:#fff;border:none;border-radius:6px;cursor:pointer">
-        Login
-      </button>
+      <button type="submit" class="btn btn-primary btn-block" style="margin-top:0.5rem">Sign in</button>
     </form>
-    <p style="margin-top:1rem;font-size:0.85rem;text-align:center">
-      No account? <a href="{% url 'register' %}">Register</a>
+    <p style="text-align:center;margin-top:1.25rem;font-size:0.85rem;color:var(--muted)">
+      No account? <a href="{% url 'register' %}" style="color:var(--green);text-decoration:none;font-weight:600">Create one</a>
     </p>
   </div>
 </div>
